@@ -1,0 +1,45 @@
+{#each _.chunk(schueler, 10) as slice, i}
+  <div class="page grid" orientation="portrait" size="A4">
+    <div class="header">
+      <b>Klassenliste der {schueler[0].Klasse} – Stand {heute}</b>
+    </div>
+    <div class="main">
+      <Voffset v=1/>
+      <table>
+        {#each slice as s, ii}
+          <tr>
+            <td><b>{i*10+ii+1}</b></td>
+            <td>{s.anrede} <b>{s.Name}, {s.Vorname}</b></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>{s.Strasse}, {s.PLZ} {s.OrtAbk}</td>
+          </tr>
+          <tr><td></td><td>Telefon: {s.Telefon} – eMail: {s.EMail}</td></tr>
+          <tr>
+            <td></td>
+            <td>geboren am {datum(s.Geburtsdatum)} in {s.Geburtsort}<br></td>
+          </tr>
+        {/each}
+      </table>
+    </div>
+    <div class="footer">Seite {i+1}/{Math.ceil(schueler.length/10)}</div>
+  </div>
+{/each}
+
+<script>
+  import { datum }  from './helfer'
+  const _  = R.lodash
+
+	export default {
+    data () { return { heute: new Date().toLocaleDateString('de', {day: '2-digit', month: '2-digit', year: 'numeric'}) } },
+    helpers: { datum, _ },
+    components: {
+      Voffset: './partials/Voffset.html'
+    }
+  }
+</script>
+
+<style>
+  @import 'css/main.css';
+</style>

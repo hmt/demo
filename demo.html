@@ -1,0 +1,94 @@
+<div class="page grid" orientation="portrait" size="A4">
+  <div class="main">
+    <h1>schild.report Demo-Report</h1>
+    Dieser Report verwendet ein Standard-CSS, das für die Druckausgabe optimiert
+    ist. Es kann als Grundlage für alle Reports verwendet werden.
+    Um eine Seite zu erstellen, reicht diese Vorlage:
+    <pre>{html(`
+<div class="page grid" orientation="portrait" size="A4">
+  <div class="header">
+    <h2><center>Inhalt für den Kopfteil</center></h2>
+    <hr>
+  </div>
+  <div class="main">
+    <h3>Der Hauptteil der Seite</h3>
+  </div>
+  <div class="footer">
+    <hr>
+    <h2><center>Inhalt für den Fuß</center></h2>
+  </div>
+</div>
+    `)}</pre>
+  </div>
+</div>
+<div class="page grid" orientation="portrait" size="A4">
+  <div class="header">
+    <h2><center>Inhalt für den Kopfteil</center></h2>
+    <hr>
+  </div>
+  <div class="main">
+    <h3>Der Hauptteil der Seite</h3>
+  </div>
+  <div class="footer">
+    <hr>
+    <h2><center>Inhalt für den Fuß</center></h2>
+  </div>
+</div>
+<div class="page grid" orientation="portrait" size="A4">
+  <div class="header"><h2><center>Nächste Seite</center></h2></div>
+  <div class="main">
+    <h3>Im Folgenden gibt es weitere Beispiele zur Anwendung der Reports</h3>
+    Wenn man Schülerdaten in einer Schleife ausgeben möchte, greift man auf Svelte
+    zurück, das diese Funktion komfortabel zur Verfügung stellt. Auf den nächsten Seiten
+    werden verschiedene Möglichkeiten demonstriert. Um herauszufinden, wie der Inhalt
+    erzeugt wird, bitte im Vorlagenverzeichnis das dokumentierte <code>demo.html</code> Dokument
+    öffnen und zum Testen gerne auch ändern. Die Änderungen, sofern keine Fehler
+    eingebaut werden, werden automatisch nach dem Speichern angezeigt.
+  </div>
+  <div class="footer"><h2><center>Inhalt für den Fuß</center></h2></div>
+</div>
+<div class="page grid" orientation="portrait" size="A4">
+  <!-- Pageheader ist eine Svelte-Komponente, die unter ./partials abgelegt ist und im
+  script-Bereich dieses Dokuments registriert wurde. -->
+  <Pageheader logo="daten/top_dummy.svg"/>
+  <div class="main">
+    In der Klasse sind <b>{schueler.length}</b> Schülerinnen und Schüler.
+    <br>D.h. {schueler.filter(s => s.Geschlecht === 3).length} Schüler und
+    {schueler.filter(s => s.Geschlecht === 4).length} Schülerinnen
+    <Voffset v="2"/>
+    Hier nun die ersten 15:<br>
+    <!-- Damit die Seite nicht mehr darstellt als auf ein A4-Papier passt, werden nur
+    die ersten 15 Schüler (oder weniger) angezeigt. Mit {#each schueler as s} würden
+    alle Schüler auf der Seite dargestellt werden.
+    s ist der jeweilige Schüler und i die Position in der Liste: -->
+    {#each schueler.slice(0,15) as s, i}
+      {#each s.abschnitte.filter(aktHalbjahr) as hj}
+        <b>{i+1}</b> {s.Name} ist {s.schueler_in} in der Klasse {s.Klasse} <br>
+        {s.Geschlecht === 3 ? 'Er':'Sie'} befindet sich im Schuljahr {hj.Jahr} im {hj.Abschnitt} Halbjahr.<br>
+      {/each}
+    {/each}
+  </div>
+</div>
+
+
+<script>
+	export default {
+    data () { return {
+      page: ``
+    }},
+    helpers: {
+      html: text => text
+    },
+    components: {
+      Pageheader: './partials/Pageheader.html',
+      Voffset: './partials/Voffset.html'
+    },
+    computed: {
+      aktHalbjahr: ({jahr, abschnitt}) => { return a => a.Jahr === jahr && a.Abschnitt === abschnitt }
+    }
+  }
+</script>
+
+<style>
+  @import 'css/main.css';
+</style>

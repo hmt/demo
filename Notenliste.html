@@ -1,0 +1,70 @@
+{#each _.chunk(schueler, anzahl) as slice, i}
+  <div class="page grid" orientation="landscape" size="A4">
+    <div class="header">
+      <b>Notenliste der {schueler[0].Klasse} – Stand {heute}</b>
+    </div>
+    <div class="main">
+      <Voffset v=1/>
+      <table class="table-bordered">
+        <tr>
+          <td><b>Nr</b></td><td><b>Name</b></td>
+          {#each Array.from(faecher) as f}
+            <td class="text-center"><b>{f}</b></td>
+          {/each}
+        </tr>
+        {#each slice as s, ii}
+          <tr>
+            <td><b>{i*10+ii+1}</b></td>
+            <td><b>{s.Name}, {s.Vorname}</b></td>
+            {#each Object.entries(noten) as [fach, noten]}
+              <td class="text-center" style={parseInt(noten[i*anzahl+ii]) > 4 ? 'background:tomato;':''}>{noten[i*anzahl+ii]}</td>
+            {/each}
+          </tr>
+        {/each}
+      </table>
+    </div>
+    <div class="footer">Seite {i+1}/{Math.ceil(schueler.length/anzahl)}</div>
+  </div>
+{/each}
+
+<script>
+  const _  = R.lodash
+
+	export default {
+    data () {
+      return {
+        anzahl: 20,
+        heute: new Date().toLocaleDateString('de', {day: '2-digit', month: '2-digit', year: 'numeric'})
+      }
+    },
+    computed: {
+      aktHalbjahr: ({jahr, abschnitt}) => { return a => a.Jahr === jahr && a.Abschnitt === abschnitt },
+      faecher: ({schueler, aktHalbjahr}) => {
+        let faecher = new Set
+        schueler.forEach(s => s.abschnitte.find(aktHalbjahr).noten.forEach(n => {faecher.add(n.fach.FachKrz)}))
+        return faecher
+      },
+      noten: ({schueler, faecher, aktHalbjahr}) => {
+        let noten = {}
+        faecher.forEach(f => {noten[f] = []})
+        schueler.forEach(s => s.abschnitte.find(aktHalbjahr).noten.forEach(n => noten[n.fach.FachKrz].push(n.NotenKrz || "–")))
+        return noten
+      }
+    },
+    helpers: { _ },
+    components: {
+      Voffset: './partials/Voffset.html'
+    }
+  }
+</script>
+
+<style>
+  @import 'css/main.css';
+  @import 'css/a4-landscape.css';
+  .table-bordered {
+    border-collapse: collapse; }
+  .table-bordered tr td {
+    border: thin solid #ddd;
+    line-height: 1.3rem }
+</style>
+
