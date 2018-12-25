@@ -1,0 +1,12 @@
+{
+	"default": {
+		"Schulform": "Schulform fehlt",
+		"Bereich": "Bereich fehlt",
+		"Zeugniskopf": "ohne Angabe",
+		"Berufsbezeichnung_m": "männliche Berufsbezeichnung",
+		"Berufsbezeichnung_w": "weibliche Berufsbezeichnung",
+		"Fremdsprache": {
+			"114": "(B2/C1)"
+		}
+	}
+}

@@ -1,15 +1,44 @@
+<!-- Folgende Attribute werden unterstützt:
+art:  z.B. Zeugnis, Abgangszeugnis etc. Sollte auf eine vorhandene Datei zeigen
+      wird unten links platziert im Header
+logo: z.B Schullogo. Wird oben recht splatziert
+untertitel: Wird unterhalb des Logos platziert. -->
 <div class="header">
-  {#if logo}
-    <img src="{logo}" style="width: -webkit-fill-available" alt="zeugnis_logo"/>
-  {:else}
-    <h1><center>Zeugnis</center></h1>
-  {/if}
+    {#if art}
+      <img class="art" src="{art}" alt="logo_art"/>
+    {/if}
+    {#if logo}
+      <img class="logo" src="{logo}" alt="logo"/>
+    {/if}
+    {#if untertitel}
+      <img class="untertitel" src="{untertitel}" alt="logo_untertitel"/>
+    {/if}
   <hr class="hr-rot"/>
 </div>
 
 <style>
+  .header {
+    position: relative;
+    height: 115px;
+  }
+  .art {
+    position: absolute;
+    bottom: 12px;
+  }
+  .logo {
+    position: absolute;
+    right: 0px;
+  }
+  .untertitel {
+    position: absolute;
+    right: 0px;
+    bottom: 12px;
+  }
   .hr-rot {
     border-color: #ff2700;
     margin: 8px 0;
+    position: absolute;
+    bottom: 0px;
+    width: -webkit-fill-available;
   }
 </style>
