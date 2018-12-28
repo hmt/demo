@@ -1,14 +1,15 @@
 import fkl from './daten/fachklassen.json'
+
 const noten = [null, 'sehr gut', 'gut', 'befriedigend', 'ausreichend', 'mangelhaft', 'ungenügend']
-const enoten = {'E1': 'mit besonderem Erfolg teilgenommen', 'E2': 'mit Erfolg teilgenommen', 'E3': 'teilgenommen'}
+const enoten = { 'E1': 'mit besonderem Erfolg teilgenommen', 'E2': 'mit Erfolg teilgenommen', 'E3': 'teilgenommen' }
 const punkte = {
   15: '1+', 14: '1', 13: '1-',
   12: '2+', 11: '2', 10: '2-',
    9: '3+',  8: '3',  7: '3-',
    6: '4+',  5: '4',  4: '4-',
    3: '5+',  2: '5',  1: '5-',
-             0: '6'}
-  const zahlwort = {1: "eins",2: "zwei",3: "drei",4: "vier",5: "fünf",6: "sechs",7: "sieben",8: "acht",9: "neun",0: "null"}
+             0: '6' }
+const zahlwort = { 1: "eins",2: "zwei",3: "drei",4: "vier",5: "fünf",6: "sechs",7: "sieben",8: "acht",9: "neun",0: "null" }
 
 export const datum = (t) => {
   // gibt ein Datum im deutschen Format zurück
@@ -16,7 +17,7 @@ export const datum = (t) => {
     return new Date(t).toLocaleDateString('de', {day: '2-digit', month: '2-digit', year: 'numeric'})
   } catch (e) {console.log(e); return}
 }
-export const versetzungsvermerk = (s, hj, agz=null) => {
+export const versetzungsvermerk = (s, hj, agz = null) => {
   // gibt, wenn vorhanden den passenden Vermerk zurück
   // wenn es ein agz ist und kein Konferenzdatum feststeht
   if (agz && !hj.Konferenzdatum) return
@@ -30,9 +31,7 @@ export const versetzungsvermerk = (s, hj, agz=null) => {
   }
   return vermerk
 }
-export const bemerkungen = (hj) => {
-  return hj.ZeugnisBem ? hj.ZeugnisBem.replace('\r\n', '<br/>') : 'keine'
-}
+export const bemerkungen = (hj) => hj.ZeugnisBem ? hj.ZeugnisBem.replace('\r\n', '<br/>') : 'keine'
 export const volljaehrigBei = (s, datum) => {
   // gibt an, ob der Schüler *s* zu einem Zeitpunkt *datum* volljährig war
   try {
@@ -47,12 +46,7 @@ export const schulform = (s) => {
     case 'B': return 'Berufsfachschule'
   }
 }
-export const bg = (s,k) => {
-  if (s.fachklasse && s.fachklasse.Kennung && fkl[s.fachklasse.Kennung]) {
-    return fkl[s.fachklasse.Kennung][k]
-  } else
-  return ''
-}
+export const bg = (s, k) => s.fachklasse && s.fachklasse.Kennung && fkl[s.fachklasse.Kennung] ? fkl[s.fachklasse.Kennung][k] : ''
 export const note = (note) => noten[parseInt(note)] || enoten[note]
 export const punkte2note = (p) => punkte[parseInt(p)]
 export const noteInWorten = (n) => n.split('').map(n => n === ',' ? '/' : zahlwort[parseInt(n)]).join(' ')

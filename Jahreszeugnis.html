@@ -1,22 +1,37 @@
 {#each schueler as s (s.ID)}
-  {#each s.abschnitte.filter(aktHalbjahr) as hj (hj.ID)}
+  {#each s.abschnitte.filter(aktHalbjahr()) as hj (hj.ID)}
     <div class="page grid" orientation="portrait" size="A4">
       <Seitenlogo logo="{privat.traegerLogo}"/>
       <Pageheader art="daten/zeugnis.svg" logo="{privat.logo}" untertitel="{privat.untertitel}"/>
       <div class="main">
         <div style="font-size: 15pt; line-height: 1.5em">
+          {bg(s, 'Schulform')}
         </div>
         <div style="font-size: 12pt; line-height: 1.2em">
+          {bg(s, 'Bereich')}
+          <br />{s.Geschlecht === '3' ? s.fachklasse.Bezeichnung : s.fachklasse.Beschreibung_W}
+          {#if s.ASDSchulform.startsWith('B')}
+            <br />
+            Abschluss {s.Geschlecht === '3' ? bg(s, 'Berufsbezeichnung_m') : bg(s, 'Berufsbezeichnung_w')}
+          {/if}
         </div>
         <Voffset v="1"/>
         <b>{s.anrede} {s.Vorname} {s.Zusatz || ''} {s.Name},</b>
         <br />geboren am {datum(s.Geburtsdatum)} in {s.Geburtsort},<br />
-        besuchte im {hj.Abschnitt}. Halbjahr des Schuljahres {hj.schuljahr} die Klasse {hj.Klasse}
+        {#if s.ASDSchulform.startsWith('E')}
+          besuchte das Schuljahr {hj.schuljahr} in der Klasse {hj.Klasse}
+        {:else}
+          besuchte im {hj.Abschnitt}. Halbjahr des Schuljahres {hj.schuljahr} die Klasse {hj.Klasse}
+        {/if}
         <Voffset v="2"/>
         Leistungen laut Konferenzbeschluss vom {datum(hj.Konferenzdatum)}:
-        <Noten noten={hj.noten}></Noten>
+        <Noten noten={hj.noten} fachGliederungen={s.fachklasse.fach_gliederungen}></Noten>
         <hr />
-        Fehlstunden: {Number(hj.SumFehlStd) || 0}{#if Number(hj.SumFehlStdU) > 0}, davon unentschuldigt: {hj.SumFehlStdU}<Voffset v="1"/>{/if}
+        {#if !s.ASDSchulform.startsWith('E')}
+          Fehlstunden: {Number(hj.SumFehlStd) || 0}{#if Number(hj.SumFehlStdU) > 0}, davon unentschuldigt: {hj.SumFehlStdU}
+            <Voffset v="1"/>
+          {/if}
+        {/if}
         <Voffset v="1"/>
         <b>{versetzungsvermerk(s,hj)}</b>
         <Voffset v="1"/>
@@ -43,18 +58,20 @@
           </div>
         </div>
         <div class="flex-grid">
-          <div class="col-2"></div>
-          <div class="col-2">
-            <Voffset v="1"/>
-            Die Kenntnisnahme wird bestätigt:
-          </div>
-          <div class="col">
-            <Voffset v="3"/>
-            <hr />
-            <div class="klein text-center">
-              {volljaehrigBei(s, hj.ZeugnisDatum) ? s.schueler_in : 'Erziehungsberechtigte'}
+          {#if !s.ASDSchulform.startsWith('E')}
+            <div class="col-2"></div>
+            <div class="col-2">
+              <Voffset v="1"/>
+              Die Kenntnisnahme wird bestätigt:
             </div>
-          </div>
+            <div class="col">
+              <Voffset v="3"/>
+              <hr />
+              <div class="klein text-center">
+                {volljaehrigBei(s, hj.ZeugnisDatum) ? s.schueler_in : 'Erziehungsberechtigte'}
+              </div>
+            </div>
+          {/if}
         </div>
         <Fussnote schule={schule}></Fussnote>
       </div>
@@ -63,21 +80,16 @@
 {/each}
 
 <script>
-  import { datum, versetzungsvermerk, volljaehrigBei, bemerkungen }  from './helfer'
+  import { datum, versetzungsvermerk, volljaehrigBei, bemerkungen, bg }  from './helfer'
 
-  export default {
-    components: {
-      Seitenlogo: './partials/Seitenlogo.html',
-      Pageheader: './partials/Pageheader.html',
-      Noten: './partials/Noten.html',
-      Fussnote: './partials/Fussnoten.html',
-      Voffset: './partials/Voffset.html'
-    },
-    helpers: { datum, versetzungsvermerk, volljaehrigBei, bemerkungen },
-    computed: {
-      aktHalbjahr: ({jahr, abschnitt}) => { return a => a.Jahr === jahr && a.Abschnitt === abschnitt }
-    }
-  }
+  import Seitenlogo from './partials/Seitenlogo.html'
+  import Pageheader from './partials/Pageheader.html'
+  import Voffset from './partials/Voffset.html'
+  import Noten from './partials/Noten.html'
+  import Fussnote from './partials/Fussnoten.html'
+
+  export let schueler, schule, privat, jahr, abschnitt
+  const aktHalbjahr = () => (a) => a.Jahr === jahr && a.Abschnitt === abschnitt
 </script>
 
 <style>

@@ -70,23 +70,13 @@
   </div>
 </div>
 
-
 <script>
-	export default {
-    data () { return {
-      page: ``
-    }},
-    helpers: {
-      html: text => text
-    },
-    components: {
-      Pageheader: './partials/Pageheader.html',
-      Voffset: './partials/Voffset.html'
-    },
-    computed: {
-      aktHalbjahr: ({jahr, abschnitt}) => { return a => a.Jahr === jahr && a.Abschnitt === abschnitt }
-    }
-  }
+  export let schueler, schule, privat, jahr, abschnitt, page
+  const aktHalbjahr = () => (a) => a.Jahr === jahr && a.Abschnitt === abschnitt
+  const html = (text) => text
+
+  import Pageheader from './partials/Pageheader.html'
+  import Voffset from './partials/Voffset.html'
 </script>
 
 <style>

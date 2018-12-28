@@ -1,7 +1,7 @@
 {#each _.chunk(schueler, 10) as slice, i}
   <div class="page grid" orientation="portrait" size="A4">
     <div class="header">
-      <b>Klassenliste der {schueler[0].Klasse} – Stand {heute}</b>
+      <b>Klassenliste der {schueler[0].Klasse} – Stand {datum(new Date())}</b>
     </div>
     <div class="main">
       <Voffset v=1/>
@@ -28,16 +28,12 @@
 {/each}
 
 <script>
+  export let schueler, schule, privat, jahr, abschnitt
+
+  import Pageheader from './partials/Pageheader.html'
+  import Voffset from './partials/Voffset.html'
   import { datum }  from './helfer'
   const _  = R.lodash
-
-	export default {
-    data () { return { heute: new Date().toLocaleDateString('de', {day: '2-digit', month: '2-digit', year: 'numeric'}) } },
-    helpers: { datum, _ },
-    components: {
-      Voffset: './partials/Voffset.html'
-    }
-  }
 </script>
 
 <style>

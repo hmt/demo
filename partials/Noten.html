@@ -19,7 +19,7 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
 -->
 
 <table class="table-noten">
-  {#each faechergruppen as [gruppen_id, gruppenFaecher]}
+  {#each faechergruppen() as [gruppen_id, gruppenFaecher]}
     <tr>
       <td class="fachgruppe-margin">
         <b>{gruppenbezeichnung(gruppen_id)}</b>
@@ -47,7 +47,7 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
               {/if}
             </td>
             <!-- Entweder Abschlussnote, wenn gesetzt oder Abschnittsnote oder nix -->
-            <td class="td-fach-note"><span>{f.NoteAbschluss || f.NotenKrz || '–––––'}</span></td>
+            <td class="td-fach-note"><span>{note(f.NoteAbschluss) || note(f.NotenKrz) || '–––––'}</span></td>
           </tr>
         {/if}
       {/each}
@@ -59,42 +59,34 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
 
 <script>
   import { gruppenIds } from './gruppenIDs'
+  import { note, fremdsprache } from '../helfer'
   const _ = R.lodash
 
-  export default {
-    helpers: {
-      _,
-      gruppenbezeichnung: gruppe => gruppenIds[gruppe],
-      lernbereicheUndFaecher: gruppenFaecher => Object.entries(_.groupBy(gruppenFaecher, f => f.fach.Bezeichnung)),
-      fremdsprache: (fach, fachklasse) => {
-        try {
-          return fach.Lernentw
-        } catch (e) { return 'undefined - Sprachniveau fehlt'}
-      }
-    },
-    computed: {
-      faechergruppen: ({ noten, fachGliederungen }) => {
-        // noten werden im jeweiligen Dokument über das *noten*-Attribut mitgegeben.
-        // z.B. die Abschnittsnote oder die Noten aus *s.bk_abschluss_faecher* und co.
-        // Nutzer über Konsole auf Änderungen in den Fächern hinweisen
-        if (fachGliederungen && fachGliederungen.length > 0) console.log('Es wurden Fachgliederungswerte gesetzt: ', fachGliederungen)
-        // suche in den fachGliederungen, ob für die jeweilige Fachklasse was besonderes festgelegt wurde
-        // vorausgesetzt, fachGliederungen wurde mitgegeben
-        const faecher = fachGliederungen
-          ? noten.map(f => {return {...f, fach: Object.assign(f.fach, fachGliederungen.find(fg => fg.Fach_ID === f.Fach_ID))}})
-          : noten
-        // erstmal alle Fächer sortieren in der passenden Reihenfolge,
-        // dann nach Fachgruppe gruppieren
-        return Object.entries(_.groupBy(_.sortBy(faecher, f => f.fach.SortierungS2), f => f.fach.Fachgruppe_ID))
-      },
+  export let lernfeld, ger = false
+  export let noten, fachGliederungen, fachklasse
+  const gruppenbezeichnung = gruppe => gruppenIds[gruppe]
+  const lernbereicheUndFaecher = gruppenFaecher => Object.entries(_.groupBy(gruppenFaecher, f => f.fach.Bezeichnung))
+  const faechergruppen = () => {
+    // noten werden im jeweiligen Dokument über das *noten*-Attribut mitgegeben.
+    // z.B. die Abschnittsnote oder die Noten aus *s.bk_abschluss_faecher* und co.
+    // Nutzer über Konsole auf Änderungen in den Fächern hinweisen
+    if (fachGliederungen && fachGliederungen.length > 0) console.log('Es wurden Fachgliederungswerte gesetzt: ', fachGliederungen)
+    // suche in den fachGliederungen, ob für die jeweilige Fachklasse was besonderes festgelegt wurde
+    // vorausgesetzt, fachGliederungen wurde mitgegeben
+    const faecher = fachGliederungen
+      ? noten.map(f => {return {...f, fach: Object.assign(f.fach, fachGliederungen.find(fg => fg.Fach_ID === f.Fach_ID))}})
+      : noten
+    // erstmal alle Fächer sortieren in der passenden Reihenfolge,
+    // dann nach Fachgruppe gruppieren
+    return Object.entries(_.groupBy(_.sortBy(faecher, f => f.fach.SortierungS2), f => f.fach.Fachgruppe_ID))
+  }
       // Berufsbezogen kommt neuerdings zuerst, dann berufsübergreifend
       // wenn aber nur eine Note vermerkt ist, dann normal zurück
-      faechergruppenUmsortiert: ({ faechergruppen }) => faechergruppen.length > 1
-        ? [faechergruppen[0], faechergruppen[1]] = [faechergruppen[1], faechergruppen[0]]
-        : faechergruppen
-    }
-  }
+  // const faechergruppenUmsortiert = () => faechergruppen.length > 1
+  //       ? [faechergruppen[0], faechergruppen[1]] = [faechergruppen[1], faechergruppen[0]]
+  //       : faechergruppen
 </script>
+
 <style>
 .table-noten {
   width: 100%;
