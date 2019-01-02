@@ -16,6 +16,9 @@ ger:      Wenn ein Referenzniveau für die Fremdsprachen angegeben werden soll
           true|false, Standardwert false,
 fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Standard-
           Wert gelesen werden soll. Ansonsten über Lernentw festlegen, was eigetragen wird
+faechergruppenIds: legt fest, welche Fächergruppen gezogen werden sollen. Standartwert ist
+          ein leerer Array, d.h. alle Fächergruppen werden gezogen. Ansonsten können
+          nur bestimmte festgelegt werden z.B. [10, 20, 30]
 -->
 
 <table class="table-noten">
@@ -30,11 +33,12 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
         <tr><td colspan="2" class="{lernfeld ? '' : 'fach-bezeichnung'}">{lernbereich}</td></tr>
       {/if}
       {#each faecher as f (f.ID)}
-        {#if f.AufZeugnis === '+'}
+        {#if f.fach.AufZeugnis === '+'}
           <tr>
             <td class="{lernfeld ? '' : 'fach-bezeichnung'} {lernbereich != faecher[0].fach.Zeugnisbez ? 'lernfeld-lernbereich' : ''}">
               {#if f.fach.Zeugnisbez.includes("Projekt")}
-                {f.Lernentw}
+                <!-- Funktioniert nicht mit Abschlussnoten, da diese keine Spalte `Lernentw` haben -->
+                Projekt: {f.Lernentw}
               {:else}
                 <!-- Die Zeugnisbezeichnung hat bei gesetzten fachGliederungen einen anderen Namen... -->
                 {f.fach.ZeugnisBez || f.fach.Zeugnisbez}
@@ -59,13 +63,13 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
 
 <script>
   import { gruppenIds } from './gruppenIDs'
-  import { note, fremdsprache } from '../helfer'
-  const _ = R.lodash
+  import { note, fremdsprache, groupBy } from '../helfer'
 
   export let lernfeld, ger = false
+  export let faechergruppenIds = []
   export let noten, fachGliederungen, fachklasse
   const gruppenbezeichnung = gruppe => gruppenIds[gruppe]
-  const lernbereicheUndFaecher = gruppenFaecher => Object.entries(_.groupBy(gruppenFaecher, f => f.fach.Bezeichnung))
+  const lernbereicheUndFaecher = gruppenFaecher => [...groupBy(gruppenFaecher, 'fach.Bezeichnung').entries()]
   const faechergruppen = () => {
     // noten werden im jeweiligen Dokument über das *noten*-Attribut mitgegeben.
     // z.B. die Abschnittsnote oder die Noten aus *s.bk_abschluss_faecher* und co.
@@ -76,15 +80,16 @@ fachklasse: muss mitgegeben werden, wenn aus der Fachklassen.json Datei der Stan
     const faecher = fachGliederungen
       ? noten.map(f => {return {...f, fach: Object.assign(f.fach, fachGliederungen.find(fg => fg.Fach_ID === f.Fach_ID))}})
       : noten
+    // nun alle Fächer rauswerfen, die nich in den FaechergruppenIds zugeordnet sind, z.B. Abschlussarbeiten, Projekte etc.
+    const faecherBereinigt = faechergruppenIds.length === 0
+      ? faecher
+      : faecher.filter(f => faechergruppenIds.find(id => f.fach.Fachgruppe_ID === id))
     // erstmal alle Fächer sortieren in der passenden Reihenfolge,
     // dann nach Fachgruppe gruppieren
-    return Object.entries(_.groupBy(_.sortBy(faecher, f => f.fach.SortierungS2), f => f.fach.Fachgruppe_ID))
+    const sortiert = faecherBereinigt.sort((a, b) => a.fach.SortierungS2 < b.fach.SortierungS2 ? 1 : -1)
+    const gruppiert = groupBy(sortiert, 'fach.Fachgruppe_ID')
+    return [...gruppiert.entries()]
   }
-      // Berufsbezogen kommt neuerdings zuerst, dann berufsübergreifend
-      // wenn aber nur eine Note vermerkt ist, dann normal zurück
-  // const faechergruppenUmsortiert = () => faechergruppen.length > 1
-  //       ? [faechergruppen[0], faechergruppen[1]] = [faechergruppen[1], faechergruppen[0]]
-  //       : faechergruppen
 </script>
 
 <style>

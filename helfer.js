@@ -11,6 +11,13 @@ const punkte = {
              0: '6' }
 const zahlwort = { 1: "eins",2: "zwei",3: "drei",4: "vier",5: "fünf",6: "sechs",7: "sieben",8: "acht",9: "neun",0: "null" }
 
+export const groupBy = (arr, id) => arr.reduce(
+  (entryMap, f) => {
+    const fx = id.split('.').reduce((p,c)=>p&&p[c]||null, f)
+    return entryMap.set(fx, [...entryMap.get(fx)||[], f])
+  },
+  new Map()
+)
 export const datum = (t) => {
   // gibt ein Datum im deutschen Format zurück
   try {

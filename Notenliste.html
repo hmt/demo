@@ -14,7 +14,7 @@
         </tr>
         {#each slice as s, ii}
           <tr>
-            <td><b>{i*10+ii+1}</b></td>
+            <td><b>{i*anzahl+ii+1}</b></td>
             <td><b>{s.Name}, {s.Vorname}</b></td>
             {#each Object.entries(noten()) as [fach, noten]}
               <td class="text-center" style={parseInt(noten[i*anzahl+ii]) > 4 ? 'background:tomato;':''}>{noten[i*anzahl+ii]}</td>
@@ -34,7 +34,7 @@
 
   export let schueler, schule, privat, jahr, abschnitt
   const aktHalbjahr = () => (a) => a.Jahr === jahr && a.Abschnitt === abschnitt
-  const _  = R.lodash
+  const _  = R('lodash')
   const heute = () => new Date().toLocaleDateString('de', {day: '2-digit', month: '2-digit', year: 'numeric'})
   const anzahl = 20
   const faecher = () => {
