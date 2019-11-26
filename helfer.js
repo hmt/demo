@@ -1,4 +1,4 @@
-import fkl from './daten/fachklassen.json'
+import fkl from './daten/fachklassen'
 
 const noten = [null, 'sehr gut', 'gut', 'befriedigend', 'ausreichend', 'mangelhaft', 'ungenügend']
 const enoten = { 'E1': 'mit besonderem Erfolg teilgenommen', 'E2': 'mit Erfolg teilgenommen', 'E3': 'teilgenommen' }
